@@ -27,7 +27,7 @@ def sanitize_song_names():
 			print(song_name)
 
 			song_names.append(song_name)
-	print("##################")
+	print("###################")
 	for s in set(song_names):
 		s = strip_accents(s)
 		s = re.sub('[^a-zA-Z0-9]',"", s)
