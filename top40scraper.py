@@ -57,7 +57,7 @@ class Scraper:
         #hoogste notering
         #punten
         #jaar
-        top_dict = {} #2017-19, val: 40x hit_dict
+        top_dict = {}  #2017-19, val: 40x hit_dict
 
         return
 

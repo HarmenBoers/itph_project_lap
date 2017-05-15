@@ -3,9 +3,9 @@ import musicbrainzngs
 import sys
 
 musicbrainzngs.set_useragent(
-    "python-musicbrainzngs-example",
+    "python-musicbrainzngs-itph-project",
     "0.1",
-    "https://github.com/alastair/python-musicbrainzngs/",
+    "https://github.com/HarmenBoers/itph_project_lap",
 )
 
 
@@ -25,16 +25,23 @@ class Songloader():
         :return: dictionary with artist name as a key and a dictionary of songs with metadata about the song
         '''
         artist_dict = {}
+        works_dict = {}
         # Get the first results and put in dictionary (required to get teh recording count
         for a in artists:
             artist_dict[a] = musicbrainzngs.search_recordings(artist=a, limit=25)
-        print(artist_dict)
+        for k in artist_dict:
+            for rec in artist_dict[k]['recording-list']:
+                # works_dict[k] = musicbrainzngs.get_work_by_id(id=rec['id'])
+                print(rec)
+        print(works_dict)
+
+
 
         # Now find all the songs for each artist based on the offset gained from the recording count variable
         for a in artists:
             #recording_count = artist_dict[a]['recording-count']
             #For testing
-            recording_count = 51
+            recording_count = 25
             offs = 25
 
             # While songs are left keep appending them to the recording-list
@@ -47,7 +54,7 @@ class Songloader():
                     recording_count -= 25
 
         # For testing purposes only
-        f = open('caro_dict.txt', 'w')
+        #f = open('caro_dict.txt', 'w')
         # f.write(str(artist_dict))
         # f.close()
         # print(artist_dict)
