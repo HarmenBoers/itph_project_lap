@@ -1,38 +1,47 @@
 __author__ = 'Harme'
 from lxml import html
-from lxml import etree
 import requests
-import sqlite3
-import os
 import re
-from datetime import date as dt
+import csv
 
 class Scraper:
 
     def __init__(self):
         print('Firing Up Scraper!')
+        # with open('top40_songs_t.csv', 'a', encoding='utf-8') as csvfile:
+        #    csvfile.write("{}\t{}\t{}\t{}\t{}\t{}\n".format('date', 'title', 'credit', 'weeks', 'highest_rank', 'points', 'year'))
+        for year in range(2017,2018):
+            for week in range(1,20):
+                top40_dict = {}
+                # year = 1974
+                # week = 52
 
-   #     for year in range(1965,2017):
-    #        for week in range(1,53):
-        top40_dict = {}
-        year = 2017
-        week = 19
+                #generate url
+                url = "https://www.top40.nl/top40/" + str(year) + "/week-" + str(week)
+                print(url)
 
-        #generate url
-        url = "https://www.top40.nl/top40/" + str(year) + "/week-" + str(week)
-        print(url)
+                #retrieve html page to parse
+                tree = self.get_page(url)
 
-        #retrieve html page to parse
-        tree = self.get_page(url)
+                #retrieve date
 
-        #retrieve date
-        date = tree.xpath('//div[@class="week-info text-center"]/span[@class="date"]/text()')
-        date = self.stripDate(date[0])
-        top40_dict['Date'] = date
+                date = tree.xpath('//div[@class="week-info text-center"]/span[@class="date"]/text()')
+                if not date:
+                    continue
+                date = self.stripDate(date[0])
+                top40_dict['date'] = date
 
-        #retrieve songs
-        self.get_info(tree, top40_dict)
+                #retrieve songs
+                self.get_info(tree, top40_dict)
+
+
+        # with open('top40_songs.csv', 'wb') as csvfile:
+        #     top40writer = csv.writer(csvfile, delimiter='\t')
+        #     top40writer.writerow(['Spam'] * 5 + ['Baked Beans'])
+        #     top40writer.writerow(['Spam', 'Lovely Spam', 'Wonderful Spam'])
+
         print(top40_dict)
+
 
 
 
@@ -59,31 +68,21 @@ class Scraper:
 
         print(titles)
      #  print(tree.xpath('//div[@class="title-credit text-center"]/text()'))
-        for x in range(0, 40):
-            hit_dict = {}
-            hit_dict['title'] = re.sub('\\n\s*', "", titles[x])
-            hit_dict['credit'] = credits[x]
-            hit_dict['weken'] = details[x*4]
-            hit_dict['hoogste_notering'] = details[x*4+1]
-            hit_dict['punten'] = details[x*4+2]
-            hit_dict['jaar'] = re.sub('\\n\s*', "", details [x*4+3])
-            print(hit_dict)
-            top40_dict[x+1] = hit_dict
+        with open('top40_songs.csv', 'a', encoding='utf-8') as csvfile:
+            #csvfile.write("{}\t{}\t{}\t{}\t{}\t{}\n".format('date', 'title', 'credit', 'weeks', 'highest_rank', 'points', 'year'))
+            for x in range(0, 40):
+                hit_dict = {}
+                hit_dict['title'] = re.sub('\\n\s*', "", titles[x])
+                hit_dict['credit'] = credits[x]
+                hit_dict['weken'] = details[x*4]
+                hit_dict['hoogste_notering'] = details[x*4+1]
+                hit_dict['punten'] = details[x*4+2]
+                hit_dict['jaar'] = re.sub('\\n\s*', "", details[x*4+3])
+                #print(hit_dict)
+                top40_dict[x+1] = hit_dict
 
-
-           # print(title)
-        #print(tree.xpath('//[@title="title-credit"]/text()'))
-        #print(tree.xpath("string()"))
-
-        #DETAILS
-
-
-        #weken
-        #hoogste notering
-        #punten
-        #jaar
-
-        return
+                csvfile.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(top40_dict['date'], hit_dict['title'], hit_dict['credit'], hit_dict['weken'], hit_dict['hoogste_notering'], hit_dict['punten'], hit_dict['jaar']))
+        return top40_dict
 
     def stripDate(self, datestring):
         #Input format: [' (6 mei 2017)']
